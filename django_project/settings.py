@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "tickets.apps.TicketsConfig",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -121,3 +122,21 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ]
+}
+
+AUTH_USER_MODEL = 'users.CustomUser'  # Specifica il modello utente personalizzato
+
+# Configurazioni per l'autenticazione
+LOGIN_URL = '/api/auth/login/'
+LOGIN_REDIRECT_URL = '/api/events/'
+LOGOUT_REDIRECT_URL = '/api/auth/login/'
