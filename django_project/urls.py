@@ -17,19 +17,21 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from . import views
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+)
 
 urlpatterns = [
-    path('events/', views.EventListCreateView.as_view(), name='event-list'),
-    path('events/<int:pk>/', views.EventRetrieveUpdateDestroyView.as_view(), name='event-detail'),
-    path('reservations/', views.ReservationCreateView.as_view(), name='reservation-create'),
-    path('my-reservations/', views.UserReservationsListView.as_view(), name='my-reservations'),
-]
-
-
-
-urlpatterns = [
+    # Admin panel
     path('admin/', admin.site.urls),
+
+    # API Authentication
     path('api/auth/', include('users.urls')),
+
+    # API Tickets
     path('api/', include('tickets.urls')),
+
+    # JWT Token Refresh
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]
