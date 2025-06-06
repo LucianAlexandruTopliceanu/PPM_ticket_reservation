@@ -1,0 +1,15 @@
+asgiref==3.8.1
+Django==5.2.1
+django-cors-headers==4.7.0
+djangorestframework==3.16.0
+djangorestframework_simplejwt==5.5.0
+PyJWT==2.9.0
+rest-framework-simplejwt==0.0.2
+setuptools==78.1.1
+sqlparse==0.5.3
+tzdata==2025.2
+wheel==0.45.1
+django
+psycopg2-binary
+python-dotenv
+dj-database-url

@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -19,16 +20,9 @@ class UserCreateView(generics.CreateAPIView):
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.AllowAny]
 
+    @csrf_exempt
     def perform_create(self, serializer):
         user = serializer.save()
-        # Invio email di benvenuto (opzionale)
-        send_mail(
-            'Benvenuto nel Ticket Reservation System',
-            f'Ciao {user.username}, la tua registrazione è avvenuta con successo!',
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=True,
-        )
 
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
