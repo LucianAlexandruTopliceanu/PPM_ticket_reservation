@@ -237,8 +237,9 @@
                 const response = await fetch(`${baseUrl.value}me/`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${jwtToken}`,
-                    }
+                    'Authorization': `Token ${jwtToken}`,
+                    'Content-Type': 'application/json'
+  }
                 });
 
                 const result = await response.json();
@@ -302,37 +303,6 @@
                 }
             } catch (error) {
                 showResponse('profileInfo', `Errore: ${error.message}`, true);
-                document.getElementById('response').textContent = error.stack;
-            }
-        });
-
-        // Reset password
-        document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const data = {
-                email: document.getElementById('resetEmail').value
-            };
-
-            try {
-                const response = await fetch(`${baseUrl.value}password/reset/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-                document.getElementById('response').textContent = JSON.stringify(result, null, 2);
-
-                if (response.ok) {
-                    showResponse('resetResponse', 'Email di reset inviata con successo!');
-                } else {
-                    showResponse('resetResponse', `Errore: ${result.detail || JSON.stringify(result)}`, true);
-                }
-            } catch (error) {
-                showResponse('resetResponse', `Errore: ${error.message}`, true);
                 document.getElementById('response').textContent = error.stack;
             }
         });

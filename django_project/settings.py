@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,7 +57,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # Solo per sviluppo locale!
-CORS_ALLOW_CREDENTIALS = True  # Se usi cookie/JWT
+CORS_ALLOW_CREDENTIALS = True  # cookie/JWT
 
 ROOT_URLCONF = "django_project.urls"
 
@@ -84,11 +83,10 @@ WSGI_APPLICATION = "django_project.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -141,16 +139,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ]
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'  # Specifica il modello utente personalizzato
 
-# Configurazioni per l'autenticazione
-LOGIN_URL = '/api/auth/login/'
-LOGIN_REDIRECT_URL = '/api/events/'
-LOGOUT_REDIRECT_URL = '/api/auth/login/'
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']

@@ -4,8 +4,6 @@ from .views import (
     UserCreateView,
     UserDetailView,
     CustomTokenObtainPairView,
-    PasswordResetConfirmView,
-    PasswordResetView,
 )
 
 urlpatterns = [
@@ -21,9 +19,4 @@ urlpatterns = [
     # Verifica token
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    # TODO: Reset password
-    path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
-    path('password/reset/confirm/<uidb64>/<token>/',
-         PasswordResetConfirmView.as_view(),
-         name='password_reset_confirm'),
 ]
