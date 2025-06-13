@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Reservation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #eventsSection {
+            display: block !important;
+        }
+
+        .event-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .past-event {
+            opacity: 0.7;
+            background-color: #f8f9fa;
+        }
+
+        .section-title {
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .auth-section {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-badge {
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">Ticket Reservation System</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#events">Eventi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#my-reservations" id="myReservationsLink" style="display:none;">Mie
+                        Prenotazioni</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#create-event" id="createEventLink" style="display:none;">Crea Evento</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <div id="userInfo" class="text-white me-3" style="display:none;"></div>
+                <button class="btn btn-outline-light me-2" id="loginBtn">Login</button>
+                <button class="btn btn-light" id="registerBtn">Registrati</button>
+                <button class="btn btn-danger" id="logoutBtn" style="display:none;">Logout</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Sezione Autenticazione -->
+    <div id="authSection" class="auth-section bg-white">
+        <div id="loginForm">
+            <h3 class="text-center mb-4">Login</h3>
+            <div class="mb-3">
+                <label for="loginUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="loginUsername" required>
+            </div>
+            <div class="mb-3">
+                <label for="loginPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+            <button class="btn btn-primary w-100" id="doLogin">Accedi</button>
+            <div id="loginError" class="mt-2 text-danger"></div>
+        </div>
+        <div id="registerForm" style="display:none;">
+            <h3 class="text-center mb-4">Registrati</h3>
+            <div class="mb-3">
+                <label for="regUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="regUsername" required>
+            </div>
+            <div class="mb-3">
+                <label for="regEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="regEmail" required>
+            </div>
+            <div class="mb-3">
+                <label for="regPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="regPassword" required>
+            </div>
+            <div class="mb-3">
+                <label for="regPassword2" class="form-label">Conferma Password</label>
+                <input type="password" class="form-control" id="regPassword2" required>
+            </div>
+            <button class="btn btn-success w-100" id="doRegister">Registrati</button>
+            <div id="registerError" class="mt-2 text-danger"></div>
+        </div>
+    </div>
+
+    <!-- Sezione Eventi -->
+    <div id="eventsSection" style="display:none;">
+        <h2 id="events" class="section-title">Eventi Disponibili</h2>
+
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <input type="text" class="form-control" id="searchInput"
+                       placeholder="Cerca eventi per titolo, descrizione o luogo...">
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="dateFilter">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" id="searchBtn">Cerca</button>
+            </div>
+        </div>
+
+        <div id="eventsList" class="row"></div>
+
+        <!-- Modal per prenotazione -->
+        <div class="modal fade" id="reservationModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reservationModalTitle">Prenota Biglietti</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="reservationSeats" class="form-label">Numero di biglietti</label>
+                            <input type="number" class="form-control" id="reservationSeats" min="1" value="1">
+                            <div class="form-text" id="availableSeatsText"></div>
+                        </div>
+                        <!-- TODO: Implement payment integration -->
+                        <div id="paymentSection" style="display:none;">
+                            <hr>
+                            <h5>Pagamento</h5>
+                            <p>Integrazione con sistema di pagamento da implementare</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button type="button" class="btn btn-primary" id="confirmReservation">Conferma Prenotazione
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal per creazione evento -->
+        <div class="modal fade" id="createEventModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crea Nuovo Evento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="eventTitle" class="form-label">Titolo</label>
+                            <input type="text" class="form-control" id="eventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDescription" class="form-label">Descrizione</label>
+                            <textarea class="form-control" id="eventDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="eventDate" class="form-label">Data e Ora</label>
+                                <input type="datetime-local" class="form-control" id="eventDate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="eventLocation" class="form-label">Luogo</label>
+                                <input type="text" class="form-control" id="eventLocation" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="eventTotalSeats" class="form-label">Posti Totali</label>
+                                <input type="number" class="form-control" id="eventTotalSeats" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="eventPrice" class="form-label">Prezzo per biglietto (€)</label>
+                                <input type="number" class="form-control" id="eventPrice" min="0" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button type="button" class="btn btn-primary" id="saveEvent">Salva Evento</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione Mie Prenotazioni -->
+    <div id="reservationsSection" style="display:none;">
+        <h2 id="my-reservations" class="section-title">Le Mie Prenotazioni</h2>
+        <div id="reservationsList"></div>
+    </div>
+</div>
+
+<!-- Toast per notifiche -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toastTitle">Notifica</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Configurazione
+    const API_BASE_URL = 'http://localhost:8000/api/auth/';
+    const EVENTS_API_URL = 'http://localhost:8000/api/';
+    let currentUser = null;
+    let jwtToken = localStorage.getItem('jwtToken') || null;
+    let currentEventId = null;
+
+    // Elementi UI
+    const authSection = document.getElementById('authSection');
+    const eventsSection = document.getElementById('eventsSection');
+    const reservationsSection = document.getElementById('reservationsSection');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const myReservationsLink = document.getElementById('myReservationsLink');
+    const createEventLink = document.getElementById('createEventLink');
+    const userInfo = document.getElementById('userInfo');
+
+    // Inizializzazione
+    document.addEventListener('DOMContentLoaded', () => {
+        // Carica sempre gli eventi, anche per utenti non autenticati
+        loadEvents();
+
+        // Poi verifica lo stato di autenticazione
+        checkAuthStatus();
+        setupEventListeners();
+    });
+
+    // Funzioni core
+    function checkAuthStatus() {
+        if (jwtToken) {
+            fetchUserProfile();
+        } else {
+            showUnauthenticatedUI();
+        }
+    }
+
+    async function fetchUserProfile() {
+        try {
+            const response = await fetch(`${API_BASE_URL}me/`, {
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Errore nel recupero del profilo');
+
+            currentUser = await response.json();
+            showAuthenticatedUI();
+            loadEvents();
+            if (currentUser) loadUserReservations();
+        } catch (error) {
+            console.error('Errore verifica token:', error);
+            logout();
+        }
+    }
+
+    function showAuthenticatedUI() {
+        authSection.style.display = 'none';
+        eventsSection.style.display = 'block';
+        reservationsSection.style.display = 'block';
+        loginBtn.style.display = 'none';
+        registerBtn.style.display = 'none';
+        logoutBtn.style.display = 'block';
+        myReservationsLink.style.display = 'block';
+        userInfo.style.display = 'block';
+
+        // Mostra ruolo utente
+        const role = currentUser.is_staff ? 'Organizzatore' : 'Utente Registrato';
+        userInfo.innerHTML = `Benvenuto, <strong>${currentUser.username}</strong> <span class="badge bg-info role-badge">${role}</span>`;
+
+        // Mostra link creazione evento solo per organizzatori
+        if (currentUser.is_staff) {
+            createEventLink.style.display = 'block';
+        }
+    }
+
+    function showUnauthenticatedUI() {
+        authSection.style.display = 'block';
+        eventsSection.style.display = 'block';  // Mostra la sezione eventi
+        reservationsSection.style.display = 'none';
+        loginBtn.style.display = 'block';
+        registerBtn.style.display = 'block';
+        logoutBtn.style.display = 'none';
+        myReservationsLink.style.display = 'none';
+        createEventLink.style.display = 'none';
+        userInfo.style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+
+        // Carica gli eventi (accessibili agli anonimi)
+        loadEvents();
+    }
+
+    function setupEventListeners() {
+        // Autenticazione
+        loginBtn.addEventListener('click', () => {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        });
+
+        registerBtn.addEventListener('click', () => {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        });
+
+        document.getElementById('doLogin').addEventListener('click', login);
+        document.getElementById('doRegister').addEventListener('click', register);
+        logoutBtn.addEventListener('click', logout);
+
+        // Eventi
+        document.getElementById('searchBtn').addEventListener('click', searchEvents);
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchEvents();
+        });
+
+        // Prenotazioni
+        document.getElementById('confirmReservation').addEventListener('click', function () {
+            const seats = parseInt(document.getElementById('reservationSeats').value);
+            createReservation(seats);
+        });
+
+        // Creazione evento
+        document.getElementById('saveEvent').addEventListener('click', saveEvent);
+
+        document.getElementById('createEventLink').addEventListener('click', function () {
+            if (!currentUser || !currentUser.is_staff) {
+                showToast('Errore', 'Solo gli organizzatori possono creare eventi');
+                return;
+            }
+            // Resetta il form prima di mostrarlo
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventDate').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventTotalSeats').value = '';
+            document.getElementById('eventPrice').value = '0';
+
+            // Imposta la data minima a oggi
+            const today = new Date().toISOString().slice(0, 16);
+            document.getElementById('eventDate').min = today;
+
+            const modal = new bootstrap.Modal(document.getElementById('createEventModal'));
+            modal.show();
+        });
+    }
+
+    // API Calls
+    async function login() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}login/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Credenziali non valide');
+            }
+
+            const data = await response.json();
+            jwtToken = data.access;
+            localStorage.setItem('jwtToken', jwtToken);
+            showToast('Successo', 'Login effettuato');
+            fetchUserProfile();
+        } catch (error) {
+            document.getElementById('loginError').textContent = error.message;
+            console.error('Login error:', error);
+        }
+    }
+
+    async function register() {
+        const username = document.getElementById('regUsername').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const password2 = document.getElementById('regPassword2').value;
+
+        if (password !== password2) {
+            document.getElementById('registerError').textContent = 'Le password non corrispondono';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}register/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, email, password, password2})
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || JSON.stringify(error));
+            }
+
+            showToast('Successo', 'Registrazione completata. Effettua il login.');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginUsername').value = username;
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regPassword2').value = '';
+            document.getElementById('registerError').textContent = '';
+        } catch (error) {
+            document.getElementById('registerError').textContent = error.message;
+            console.error('Registration error:', error);
+        }
+    }
+
+    function logout() {
+        jwtToken = null;
+        localStorage.removeItem('jwtToken');
+        currentUser = null;
+        showUnauthenticatedUI();
+        showToast('Info', 'Logout effettuato');
+    }
+
+    async function loadEvents() {
+        try {
+            const response = await fetch(`${EVENTS_API_URL}events/`);
+            const events = await response.json();
+            displayEvents(events);
+        } catch (error) {
+            console.error('Error loading events:', error);
+            showToast('Errore', 'Impossibile caricare gli eventi');
+        }
+    }
+
+    async function searchEvents() {
+        const searchTerm = document.getElementById('searchInput').value;
+        const date = document.getElementById('dateFilter').value;
+        let url = `${EVENTS_API_URL}events/search/?search=${encodeURIComponent(searchTerm)}`;
+
+        if (date) url += `&date=${date}`;
+
+        try {
+            const response = await fetch(url);
+            const events = await response.json();
+            displayEvents(events);
+        } catch (error) {
+            console.error('Search error:', error);
+            showToast('Errore', 'Ricerca fallita');
+        }
+    }
+
+    function displayEvents(events) {
+        const eventsList = document.getElementById('eventsList');
+        eventsList.innerHTML = '';
+
+        if (!events || events.length === 0) {
+            eventsList.innerHTML = '<div class="col-12 text-center py-4"><p>Nessun evento trovato</p></div>';
+            return;
+        }
+
+        events.forEach(event => {
+            const eventDate = new Date(event.date);
+            const isPast = new Date() > eventDate;
+            const canReserve = !isPast && event.available_seats > 0 && currentUser;
+
+            const eventCard = document.createElement('div');
+            eventCard.className = `col-md-4 event-card ${isPast ? 'past-event' : ''}`;
+            eventCard.innerHTML = `
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">${event.title}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">${eventDate.toLocaleString()}</h6>
+                    <p class="card-text">${event.description}</p>
+                    <p class="card-text"><small class="text-muted">Luogo: ${event.location}</small></p>
+                    <p class="card-text">Posti disponibili: ${event.available_seats}/${event.total_seats}</p>
+                    ${isPast ? '<span class="badge bg-secondary">Passato</span>' : ''}
+                </div>
+                <div class="card-footer bg-transparent">
+                    ${canReserve ?
+                `<button class="btn btn-primary btn-sm reserve-btn" data-event-id="${event.id}">Prenota</button>` :
+                !currentUser ?
+                    `<button class="btn btn-outline-primary btn-sm" onclick="showLoginAlert()">Accedi per prenotare</button>` :
+                    '<button class="btn btn-secondary btn-sm" disabled>Prenotazioni chiuse</button>'}
+                    ${currentUser?.is_staff ?
+                `<button class="btn btn-outline-danger btn-sm ms-2 edit-event" data-event-id="${event.id}">Modifica</button>` : ''}
+                </div>
+            </div>
+        `;
+
+            eventsList.appendChild(eventCard);
+        });
+
+        // Aggiungi event listeners ai pulsanti di prenotazione
+        document.querySelectorAll('.reserve-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const eventId = this.getAttribute('data-event-id');
+                openReservationModal(eventId);
+            });
+        });
+
+        // Aggiungi event listeners ai pulsanti di modifica (solo per staff)
+        if (currentUser?.is_staff) {
+            document.querySelectorAll('.edit-event').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const eventId = this.getAttribute('data-event-id');
+                    // TODO: Implementa la modifica evento
+                    showToast('Info', 'Modifica evento non ancora implementata');
+                });
+            });
+        }
+    }
+
+    function showLoginAlert() {
+        showToast('Attenzione', 'Devi effettuare il login per prenotare biglietti');
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        window.location.hash = '#auth';
+    }
+
+    async function openReservationModal(eventId) {
+        try {
+            const response = await fetch(`${EVENTS_API_URL}events/${eventId}/`, {
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Errore nel recupero dei dati evento');
+
+            const event = await response.json();
+
+            // Aggiorna il modal con i dati dell'evento
+            document.getElementById('reservationModalTitle').textContent = `Prenota: ${event.title}`;
+            document.getElementById('availableSeatsText').textContent =
+                `Posti disponibili: ${event.available_seats}`;
+            document.getElementById('reservationSeats').setAttribute('max', event.available_seats);
+            document.getElementById('reservationSeats').value = 1;
+
+            // Mostra il modal
+            const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
+            reservationModal.show();
+            currentEventId = eventId;
+
+        } catch (error) {
+            console.error('Errore apertura modal prenotazione:', error);
+            showToast('Errore', 'Impossibile aprire la prenotazione');
+        }
+    }
+
+    async function createReservation(seats) {
+        if (!currentEventId) {
+            showToast('Errore', 'Nessun evento selezionato');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${EVENTS_API_URL}reservations/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwtToken}`
+                },
+                body: JSON.stringify({
+                    event: currentEventId,
+                    seats: seats
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || JSON.stringify(error));
+            }
+
+            const data = await response.json();
+            showToast('Successo', 'Prenotazione effettuata con successo');
+
+            // Chiudi il modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('reservationModal'));
+            modal.hide();
+
+            // Ricarica gli eventi e le prenotazioni
+            loadEvents();
+            loadUserReservations();
+
+        } catch (error) {
+            console.error('Errore prenotazione:', error);
+            showToast('Errore', error.message);
+        }
+    }
+
+    async function loadUserReservations() {
+        if (!currentUser) return;
+
+        try {
+            const response = await fetch(`${EVENTS_API_URL}reservations/my/`, {
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                }
+            });
+
+            const reservations = await response.json();
+            displayReservations(reservations);
+        } catch (error) {
+            console.error('Error loading reservations:', error);
+            showToast('Errore', 'Impossibile caricare le prenotazioni');
+        }
+    }
+
+    function displayReservations(reservations) {
+        const reservationsList = document.getElementById('reservationsList');
+        reservationsList.innerHTML = '';
+
+        if (!reservations || reservations.length === 0) {
+            reservationsList.innerHTML = '<div class="alert alert-info">Nessuna prenotazione trovata</div>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'table table-striped';
+        table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Evento</th>
+                        <th>Data</th>
+                        <th>Posti</th>
+                        <th>Stato</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${reservations.map(res => {
+            const eventDate = new Date(res.event_details.date);
+            const isPast = new Date() > eventDate;
+            return `
+                        <tr>
+                            <td>${res.event_details.title}</td>
+                            <td>${eventDate.toLocaleString()}</td>
+                            <td>${res.seats}</td>
+                            <td>${res.is_confirmed ?
+                '<span class="badge bg-success">Confermata</span>' :
+                '<span class="badge bg-warning">In attesa</span>'}</td>
+                            <td>
+                                ${!isPast && res.is_confirmed ?
+                `<button class="btn btn-danger btn-sm cancel-reservation"
+                                     data-reservation-id="${res.id}">Annulla</button>` :
+                '<span class="text-muted">' +
+                (isPast ? 'Evento passato' : 'Non cancellabile') + '</span>'}
+                            </td>
+                        </tr>
+                        `;
+        }).join('')}
+                </tbody>
+            `;
+
+        reservationsList.appendChild(table);
+
+        // Aggiungi event listeners per cancellazione
+        document.querySelectorAll('.cancel-reservation').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const reservationId = e.target.dataset.reservationId;
+                cancelReservation(reservationId);
+            });
+        });
+    }
+
+    async function cancelReservation(reservationId) {
+        if (!confirm('Sei sicuro di voler cancellare questa prenotazione?')) return;
+
+        try {
+            const response = await fetch(`${EVENTS_API_URL}reservations/${reservationId}/cancel/`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Cancellazione fallita');
+
+            showToast('Successo', 'Prenotazione cancellata');
+            loadUserReservations();
+            loadEvents();
+        } catch (error) {
+            console.error('Cancel error:', error);
+            showToast('Errore', error.message);
+        }
+    }
+
+    async function saveEvent() {
+        // Recupera i dati dal form
+        const eventData = {
+            title: document.getElementById('eventTitle').value,
+            description: document.getElementById('eventDescription').value,
+            date: document.getElementById('eventDate').value,
+            location: document.getElementById('eventLocation').value,
+            total_seats: parseInt(document.getElementById('eventTotalSeats').value),
+            // Il backend dovrebbe impostare automaticamente available_seats = total_seats
+            price: parseFloat(document.getElementById('eventPrice').value) || 0
+        };
+
+        // Validazione di base
+        if (!eventData.title || !eventData.description || !eventData.date ||
+            !eventData.location || !eventData.total_seats) {
+            showToast('Errore', 'Compila tutti i campi obbligatori');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${EVENTS_API_URL}events/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwtToken}`
+                },
+                body: JSON.stringify(eventData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                // Gestione specifica degli errori di validazione
+                if (errorData.errors) {
+                    const errorMessages = Object.values(errorData.errors).join(', ');
+                    throw new Error(errorMessages);
+                }
+                throw new Error(errorData.detail || 'Errore nella creazione dell\'evento');
+            }
+
+            const createdEvent = await response.json();
+            showToast('Successo', `Evento "${createdEvent.title}" creato con successo`);
+
+            // Chiudi il modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createEventModal'));
+            modal.hide();
+
+            // Resetta il form
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventDate').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventTotalSeats').value = '';
+            document.getElementById('eventPrice').value = '0';
+
+            // Ricarica la lista eventi
+            loadEvents();
+
+        } catch (error) {
+            console.error('Errore creazione evento:', error);
+            showToast('Errore', error.message);
+        }
+    }
+
+    // TODO: Implementare integrazione con sistema di pagamento
+    async function processPayment(reservationId) {
+        showToast('Info', 'Integrazione pagamento da implementare');
+        // Implementare chiamata API per processare il pagamento
+        // Possibile integrazione con Stripe, PayPal, etc.
+    }
+
+    function showToast(title, message) {
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMessage').textContent = message;
+        new bootstrap.Toast(document.getElementById('liveToast')).show();
+    }
+</script>
+</body>
+</html>

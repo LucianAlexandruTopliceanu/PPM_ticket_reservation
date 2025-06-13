@@ -7,7 +7,7 @@ from .models import Event, Reservation
 from .serializers import EventSerializer, ReservationSerializer
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Q
 
 class EventListCreateView(generics.ListCreateAPIView):
     """View per listare e creare eventi"""
@@ -99,9 +99,9 @@ class EventSearchView(generics.ListAPIView):
         search_term = self.request.query_params.get('search', None)
         if search_term:
             queryset = queryset.filter(
-                models.Q(title__icontains=search_term) |
-                models.Q(description__icontains=search_term) |
-                models.Q(location__icontains=search_term)
+                Q(title__icontains=search_term) |
+                Q(description__icontains=search_term) |
+                Q(location__icontains=search_term)
             )
 
         return queryset

@@ -34,6 +34,10 @@ class EventSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Il numero di posti deve essere positivo.")
         return value
 
+    def create(self, validated_data):
+        validated_data['available_seats'] = validated_data['total_seats']
+        return super().create(validated_data)
+
 
 class ReservationSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
