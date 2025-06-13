@@ -4,6 +4,7 @@ from django.db.models import F
 
 from . import serializers, models
 from .models import Event, Reservation
+from .permissions import IsOrganizerOrAdmin
 from .serializers import EventSerializer, ReservationSerializer
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -27,10 +28,23 @@ class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_object(self):
+        event = get_object_or_404(Event, pk=self.kwargs['pk'])
+        return event
+
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            return [permissions.IsAdminUser() | permissions.IsAuthenticated()]
+            # Solo l'organizzatore dell'evento o un admin possono modificare/cancellare
+            return [IsOrganizerOrAdmin()]
         return super().get_permissions()
+
+    def perform_update(self, serializer):
+        # Qui puoi aggiungere logica pre-salvataggio se necessario
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Qui puoi aggiungere logica pre-eliminazione se necessario
+        instance.delete()
 
 
 class ReservationCreateView(generics.CreateAPIView):
