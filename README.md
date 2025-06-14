@@ -58,9 +58,9 @@ Il progetto è deployato su Railway <!-- Sostituisci con il tuo link -->
 
 - **Credenziali demo:** 
 
-   - Organizzatore: staff / password123
+   - Organizzatore: staff / testpassword
 
-   - Utente: utente / password123
+   - Utente: utente / testpassword
 
 ## 🎯 Requisiti soddisfatti
 
