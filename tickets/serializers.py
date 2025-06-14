@@ -15,11 +15,8 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = (
-            'id', 'title', 'description', 'date', 'location',
-            'total_seats', 'available_seats', 'organizer', 'is_past'
-        )
-        read_only_fields = ('organizer', 'available_seats')
+        fields = '__all__'
+        read_only_fields = ('organizer', 'created_at')
 
     def get_is_past(self, obj):
         return obj.date < timezone.now()
@@ -32,6 +29,11 @@ class EventSerializer(serializers.ModelSerializer):
     def validate_total_seats(self, value):
         if value <= 0:
             raise serializers.ValidationError("Il numero di posti deve essere positivo.")
+        return value
+
+    def validate_price(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Il prezzo non può essere negativo")
         return value
 
     def create(self, validated_data):

@@ -10,6 +10,7 @@ class Event(models.Model):
     location = models.CharField(max_length=200)
     total_seats = models.PositiveIntegerField()
     available_seats = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     organizer = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -26,3 +27,4 @@ class Reservation(models.Model):
         permissions = [
             ("cancel_reservation", "Can cancel reservation"),
         ]
+

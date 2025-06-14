@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
+
 class EventListCreateView(generics.ListCreateAPIView):
     """View per listare e creare eventi"""
     queryset = Event.objects.filter(date__gte=timezone.now())
@@ -20,6 +21,9 @@ class EventListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(organizer=self.request.user)
+
+
+from rest_framework.exceptions import ValidationError
 
 
 class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -34,16 +38,37 @@ class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            # Solo l'organizzatore dell'evento o un admin possono modificare/cancellare
             return [IsOrganizerOrAdmin()]
         return super().get_permissions()
 
     def perform_update(self, serializer):
-        # Qui puoi aggiungere logica pre-salvataggio se necessario
+        instance = self.get_object()  # L'evento esistente
+        new_total_seats = serializer.validated_data.get('total_seats', instance.total_seats)
+
+        # Controllo che i nuovi posti totali non siano minori di quelli già prenotati
+        seats_already_reserved = instance.total_seats - instance.available_seats
+        if new_total_seats < seats_already_reserved:
+            raise ValidationError({
+                'total_seats': f'Non puoi impostare meno di {seats_already_reserved} posti totali '
+                               f'(già {seats_already_reserved} prenotati)'
+            })
+
+        # Calcola la nuova disponibilità
+        if 'total_seats' in serializer.validated_data:
+            difference = new_total_seats - instance.total_seats
+            serializer.validated_data['available_seats'] = instance.available_seats + difference
+
+        # Gestione del prezzo
+        new_price = serializer.validated_data.get('price', instance.price)
+        if new_price < 0:
+            raise ValidationError({
+                'price': 'Il prezzo non può essere negativo'
+            })
+
         serializer.save()
 
     def perform_destroy(self, instance):
-        # Qui puoi aggiungere logica pre-eliminazione se necessario
+        # TODO: aggiungere controlli sulle prenotazioni esistenti
         instance.delete()
 
 

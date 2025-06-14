@@ -43,6 +43,15 @@
             font-size: 0.8rem;
             margin-left: 10px;
         }
+
+        .modal-footer {
+            justify-content: space-between;
+        }
+
+        #deleteEventBtn {
+            margin-right: auto;
+            margin-left: 0;
+        }
     </style>
 </head>
 <body>
@@ -218,36 +227,40 @@
                             <!-- Campi identici al form di creazione -->
                             <!-- Usa gli stessi campi ma con prefisso edit (editEventTitle, etc.) -->
                             <div class="mb-3">
-                            <label for="eventTitle" class="form-label">Titolo</label>
-                            <input type="text" class="form-control" id="editEventTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="eventDescription" class="form-label">Descrizione</label>
-                            <textarea class="form-control" id="editEventDescription" rows="3" required></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="eventDate" class="form-label">Data e Ora</label>
-                                <input type="datetime-local" class="form-control" id="editEventDate" required>
+                                <label for="eventTitle" class="form-label">Titolo</label>
+                                <input type="text" class="form-control" id="editEventTitle" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="eventLocation" class="form-label">Luogo</label>
-                                <input type="text" class="form-control" id="editEventLocation" required>
+                            <div class="mb-3">
+                                <label for="eventDescription" class="form-label">Descrizione</label>
+                                <textarea class="form-control" id="editEventDescription" rows="3" required></textarea>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="eventTotalSeats" class="form-label">Posti Totali</label>
-                                <input type="number" class="form-control" id="editEventTotalSeats" min="1" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="eventDate" class="form-label">Data e Ora</label>
+                                    <input type="datetime-local" class="form-control" id="editEventDate" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="eventLocation" class="form-label">Luogo</label>
+                                    <input type="text" class="form-control" id="editEventLocation" required>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="eventPrice" class="form-label">Prezzo per biglietto (€)</label>
-                                <input type="number" class="form-control" id="editEventPrice" min="0" step="0.01" value="0">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="eventTotalSeats" class="form-label">Posti Totali</label>
+                                    <input type="number" class="form-control" id="editEventTotalSeats" min="1" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="eventPrice" class="form-label">Prezzo per biglietto (€)</label>
+                                    <input type="number" class="form-control" id="editEventPrice" min="0" step="0.01"
+                                           value="0">
+                                </div>
                             </div>
-                        </div>
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-danger me-auto" id="deleteEventBtn" style="display: none;">
+                            Elimina Evento
+                        </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
                         <button type="button" class="btn btn-primary" onclick="updateEvent()">Salva Modifiche</button>
                     </div>
@@ -872,15 +885,21 @@
 
             const event = await response.json();
 
-            // Popola il form con i dati esistenti
+            // Popola il form
             document.getElementById('editEventTitle').value = event.title;
             document.getElementById('editEventDescription').value = event.description;
-            document.getElementById('editEventDate').value = event.date.slice(0, 16); // Formatta per datetime-local
+            document.getElementById('editEventDate').value = event.date.slice(0, 16);
             document.getElementById('editEventLocation').value = event.location;
             document.getElementById('editEventTotalSeats').value = event.total_seats;
             document.getElementById('editEventPrice').value = event.price || 0;
 
-            // Salva l'ID dell'evento da modificare
+            // Mostra il pulsante elimina solo all'organizzatore/admin
+            const deleteBtn = document.getElementById('deleteEventBtn');
+            deleteBtn.style.display = 'block';
+            deleteBtn.onclick = () => confirmDeleteEvent(eventId);
+            deleteBtn.dataset.eventId = eventId;
+
+            // Imposta l'ID dell'evento nel form
             document.getElementById('editEventForm').dataset.eventId = eventId;
 
             // Mostra il modal
@@ -913,7 +932,15 @@
                 body: JSON.stringify(eventData)
             });
 
-            if (!response.ok) throw new Error('Update failed');
+            if (!response.ok) {
+                const errorData = await response.json();
+                // Gestione specifica degli errori
+                if (errorData.total_seats) {
+                    showToast('Errore', errorData.total_seats[0]);  // Mostra il messaggio specifico
+                    return;
+                }
+                throw new Error('Update failed');
+            }
 
             showToast('Successo', 'Evento aggiornato con successo');
             bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
@@ -921,13 +948,39 @@
 
         } catch (error) {
             console.error('Update error:', error);
-            showToast('Errore', 'Aggiornamento fallito');
+            showToast('Errore', error.message || 'Aggiornamento fallito');
         }
     }
 
     function confirmDeleteEvent(eventId) {
         const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-        document.getElementById('confirmDeleteBtn').onclick = () => deleteEvent(eventId);
+
+        // Chiudi il modal di modifica prima di mostrare la conferma
+        bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
+
+        document.getElementById('confirmDeleteBtn').onclick = async () => {
+            try {
+                const response = await fetch(`${EVENTS_API_URL}events/${eventId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Delete failed');
+
+                showToast('Successo', 'Evento eliminato con successo');
+                modal.hide();
+                loadEvents();
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Errore', error.message || 'Eliminazione fallita');
+                // Ripristina il modal di modifica in caso di errore
+                openEditModal(eventId);
+            }
+        };
+
         modal.show();
     }
 
