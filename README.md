@@ -1,6 +1,6 @@
 # Ticket Reservation System - REST API
 
-![Demo Screenshot](https://via.placeholder.com/800x400?text=Screenshot+or+GIF+demo) <!-- Sostituisci con un'immagine reale -->
+![demo home](https://github.com/user-attachments/assets/3548a359-df81-4d50-a679-4961ca7e23c8)
 
 Un sistema completo per la gestione di prenotazioni di biglietti per eventi, con autenticazione JWT e ruoli differenziati.
 
@@ -38,7 +38,7 @@ Endpoint principali:
 ## 🏗️ Struttura del progetto
 
 <!-- TREEVIEW START -->
-
+![struttura](https://github.com/user-attachments/assets/caae80d7-d33d-428a-ad81-f7345a1e3c4b)
 <!-- TREEVIEW END -->
 
 
@@ -65,9 +65,9 @@ Il progetto è deployato su Railway <!-- Sostituisci con il tuo link -->
 ## 🎯 Requisiti soddisfatti
 
 - ✔️ 2 diverse app (users e tickets)
-- ✔️ 3 relazioni tra modelli (User-Event, Event-Reservation, Reservation-Payment)
+- ✔️ 2+ relazioni tra modelli (User-Event, Event-Reservation, Reservation-Payment)
 - ✔️ Viste basate su classi generiche (generics.ListCreateAPIView, etc.)
-- ✔️ 3 livelli di permessi (Utente, Organizzatore, Admin)
+- ✔️ 2+ livelli di permessi (Utente, Organizzatore, Admin)
 - ✔️ Modello User esteso (CustomUser con campi aggiuntivi)
 - ✔️ Client minimale incluso (test-api-full.html)
 - 📄 Database pre-popolato
