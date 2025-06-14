@@ -1,7 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django.db.models import F
-
 from . import serializers, models
 from .models import Event, Reservation, Payment
 from .permissions import IsOrganizerOrAdmin
@@ -68,7 +67,6 @@ class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         serializer.save()
 
     def perform_destroy(self, instance):
-        # TODO: aggiungere controlli sulle prenotazioni esistenti
         instance.delete()
 
 
@@ -176,7 +174,7 @@ class PaymentCreateView(generics.CreateAPIView):
         self.perform_create(serializer)
 
         # Qui andrebbe integrato il vero processore di pagamento
-        # Per ora simuliamo un pagamento riuscito
+        # Per ora simulo un pagamento riuscito
         payment = serializer.instance
         payment.status = 'completed'
         payment.transaction_id = f"SIM{payment.id:08d}"

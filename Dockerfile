@@ -19,5 +19,4 @@ COPY . .
 
 # Comando di avvio ottimizzato
 CMD ["bash", "-c", "while ! nc -z db 5432; do sleep 2; done && \
-     python manage.py migrate && \
-     gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"]
+     python manage.py migrate "]
