@@ -65,9 +65,9 @@ Il progetto è deployato su Railway <!-- Sostituisci con il tuo link -->
 ## 🎯 Requisiti soddisfatti
 
 - ✔️ 2 diverse app (users e tickets)
-- ✔️ 3 relazioni tra modelli (User-Event, Event-Reservation, Reservation-Payment)
+- ✔️ 2+ relazioni tra modelli (User-Event, Event-Reservation, Reservation-Payment)
 - ✔️ Viste basate su classi generiche (generics.ListCreateAPIView, etc.)
-- ✔️ 3 livelli di permessi (Utente, Organizzatore, Admin)
+- ✔️ 2+ livelli di permessi (Utente, Organizzatore, Admin)
 - ✔️ Modello User esteso (CustomUser con campi aggiuntivi)
 - ✔️ Client minimale incluso (test-api-full.html)
 - 📄 Database pre-popolato
