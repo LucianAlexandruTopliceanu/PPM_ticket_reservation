@@ -48,7 +48,7 @@ Endpoint principali:
 2. Crea e attiva un ambiente virtuale
 3. Installa le dipendenze
 4. Esegui le migrazioni
-5. Carica le fixtures in ordine: python manage.py loaddata users.json tickets.json
+5. Carica le fixtures in ordine: python manage.py loaddata db.json
 6. Avvia il server di sviluppo
 7. Accedi all'API all'indirizzo: http://localhost:8000/api/
 8. Accedi al client utilizzando test-api-full.html
@@ -72,14 +72,5 @@ Il progetto è deployato su Railway <!-- Sostituisci con il tuo link -->
 - ✔️ Modello User esteso (CustomUser con campi aggiuntivi)
 - ✔️ Client minimale incluso (test-api-full.html)
 - 📄 Database pre-popolato
-
-## Il repository include un file db.sqlite3 con:
-
-    5 eventi di esempio
-
-    3 utenti demo (admin, organizzatore, utente normale)
-
-    10 prenotazioni di test
-
 
 <div align="center"> <sub>Sviluppato per l'esercitazione di Back-end PPM 2025 - Università di Firenze</sub> </div> 
