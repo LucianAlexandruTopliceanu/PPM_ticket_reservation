@@ -5,7 +5,7 @@ from .views import (
     ReservationCreateView,
     UserReservationsListView,
     ReservationCancelView,
-    EventSearchView
+    EventSearchView, PaymentCreateView
 )
 
 urlpatterns = [
@@ -21,4 +21,6 @@ urlpatterns = [
     path('reservations/my/', UserReservationsListView.as_view(), name='my-reservations'),
     path('reservations/<int:pk>/cancel/', ReservationCancelView.as_view(), name='reservation-cancel'),
 
+    # Pagamento
+    path('payments/', PaymentCreateView.as_view(), name='payment-create'),
 ]

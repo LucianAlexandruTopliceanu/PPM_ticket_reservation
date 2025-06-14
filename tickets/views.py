@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from django.db.models import F
 
 from . import serializers, models
-from .models import Event, Reservation
+from .models import Event, Reservation, Payment
 from .permissions import IsOrganizerOrAdmin
-from .serializers import EventSerializer, ReservationSerializer
+from .serializers import EventSerializer, ReservationSerializer, PaymentSerializer
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -144,3 +144,42 @@ class EventSearchView(generics.ListAPIView):
             )
 
         return queryset
+
+
+class PaymentCreateView(generics.CreateAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        reservation_id = request.data.get('reservation')
+        try:
+            reservation = Reservation.objects.get(id=reservation_id, user=request.user)
+        except Reservation.DoesNotExist:
+            return Response(
+                {"error": "Prenotazione non trovata o non autorizzata"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Calcola il totale (prezzo evento * numero posti)
+        total_amount = reservation.event.price * reservation.seats
+
+        payment_data = {
+            'reservation': reservation.id,
+            'amount': total_amount,
+            'payment_method': request.data.get('payment_method', 'card'),
+            'status': 'pending'
+        }
+
+        serializer = self.get_serializer(data=payment_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Qui andrebbe integrato il vero processore di pagamento
+        # Per ora simuliamo un pagamento riuscito
+        payment = serializer.instance
+        payment.status = 'completed'
+        payment.transaction_id = f"SIM{payment.id:08d}"
+        payment.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

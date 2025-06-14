@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, Reservation
+from .models import Event, Reservation, Payment
 from users.models import CustomUser
 from django.utils import timezone
 
@@ -96,3 +96,10 @@ class EventAvailabilitySerializer(serializers.Serializer):
                 "La data di inizio deve essere precedente alla data di fine."
             )
         return data
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['id', 'reservation', 'amount', 'payment_date', 'status', 'payment_method']
+        read_only_fields = ['id', 'payment_date', 'status']

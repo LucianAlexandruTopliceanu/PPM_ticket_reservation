@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class Event(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -16,6 +17,7 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
+
 class Reservation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -28,3 +30,19 @@ class Reservation(models.Model):
             ("cancel_reservation", "Can cancel reservation"),
         ]
 
+
+class Payment(models.Model):
+    reservation = models.OneToOneField('Reservation', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'In attesa'),
+        ('completed', 'Completato'),
+        ('failed', 'Fallito'),
+        ('refunded', 'Rimborsato')
+    ], default='pending')
+    payment_method = models.CharField(max_length=50)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"Pagamento {self.id} - {self.amount}€"
