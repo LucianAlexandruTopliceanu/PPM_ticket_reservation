@@ -48,9 +48,10 @@ Endpoint principali:
 2. Crea e attiva un ambiente virtuale
 3. Installa le dipendenze
 4. Esegui le migrazioni
-5. Crea un superuser (admin)
+5. Carica le fixtures in ordine: python manage.py loaddata users.json tickets.json
 6. Avvia il server di sviluppo
 7. Accedi all'API all'indirizzo: http://localhost:8000/api/
+8. Accedi al client utilizzando test-api-full.html
 
 ## 🌐 Deployment
 
