@@ -10,3 +10,4 @@ sqlparse==0.5.3
 tzdata==2025.2
 wheel==0.45.1
 gunicorn 
+dj-database-url==1.0.0
