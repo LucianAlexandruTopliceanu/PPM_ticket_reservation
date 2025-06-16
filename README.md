@@ -62,18 +62,7 @@ Endpoint principali:
  ```
 3. Esegui il container PostgreSQL con le tue configurazioni
 ```
-   docker run -d \
-  --name ticket_db \
-  -e POSTGRES_USER=myuser \
-  -e POSTGRES_PASSWORD=mypassword \
-  -e POSTGRES_DB=mydatabase \
-  -v postgres_data:/var/lib/postgresql/data \
-  -p 5432:5432 \
-  --health-cmd="pg_isready -U myuser -d mydatabase" \
-  --health-interval=5s \
-  --health-timeout=5s \
-  --health-retries=5 \
-  postgres:13
+   docker run -d  --name ticket_db  -e POSTGRES_USER=myuser  -e POSTGRES_PASSWORD=mypassword   -e POSTGRES_DB=mydatabase  -v postgres_data:/var/lib/postgresql/data  -p 5432:5432  --health-cmd="pg_isready -U myuser -d mydatabase"  --health-interval=5s  --health-timeout=5s  --health-retries=5  postgres:13
 ```
 
 4. Pull della tua immagine web
@@ -82,15 +71,11 @@ Endpoint principali:
 ```
 5. Esegui il container web collegandolo al DB
 ```
-   docker run -d \
-  --name ticket_web \
-  -e DATABASE_URL="postgres://myuser:mypassword@ticket_db:5432/mydatabase" \
-  --link ticket_db:db \
-  -p 8000:8000 \
-  lualto/django-ticket-web:1.0
+   docker run -d  --name ticket_web -e DATABASE_URL="postgres://myuser:mypassword@ticket_db:5432/mydatabase" --link ticket_db:db -p 8000:8000  lualto/django-ticket-web:1.0
 ```
 6. (Opzionale) Carica dati iniziali 
 ```
+docker exec -it ticket_web python manage.py flush
 docker exec -it ticket_web python manage.py loaddata db.json
 ```
 7. Accedi all'API utilizzando il client test-api-full.html
