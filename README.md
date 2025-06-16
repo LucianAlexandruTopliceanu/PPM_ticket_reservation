@@ -12,7 +12,6 @@ Un sistema completo per la gestione di prenotazioni di biglietti per eventi, con
   - **Utenti registrati**: Prenotano e gestiscono le proprie prenotazioni
   - **Organizzatori**: Creano e gestiscono i propri eventi
   - **Admin**: Accesso completo
-- **API RESTful** documentata
 
 ## 📚 Documentazione API
 
