@@ -76,6 +76,8 @@ Endpoint principali:
 6. (Opzionale) Carica dati iniziali 
 ```
 docker exec -it ticket_web python manage.py flush
+```
+```
 docker exec -it ticket_web python manage.py loaddata db.json
 ```
 7. Accedi all'API utilizzando il client test-api-full.html
