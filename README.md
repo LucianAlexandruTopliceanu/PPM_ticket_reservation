@@ -34,6 +34,7 @@ Endpoint principali:
 - **Autenticazione**: JWT (Simple JWT)
 - **Database**: SQLite (sviluppo), PostgreSQL (produzione)
 - **Frontend**: HTML5, Bootstrap 5, JavaScript
+- **Deploy**: Docker, Railway
 
 ## 🏗️ Struttura del progetto
 
@@ -47,18 +48,34 @@ Endpoint principali:
 1. Clona il repository
 2. Crea e attiva un ambiente virtuale
 3. Installa le dipendenze
-4. Esegui le migrazioni
-5. Carica le fixtures in ordine: python manage.py loaddata db.json
-6. Avvia il server di sviluppo
-7. Accedi all'API all'indirizzo: http://localhost:8000/api/
-8. Accedi al client utilizzando test-api-full.html
+4. Modifica in settings.py le informazioni del database con quelle locali dbsqlite
+5. Esegui le migrazioni
+6. Carica le fixtures : python manage.py loaddata db.json
+7. Avvia il server di sviluppo
+8. Accedi all'API all'indirizzo: http://localhost:8000/api/
+9. Accedi al client utilizzando test-api-full.html
+
+## 🐳 Installazione locale server API Docker
+
+1. Fare il pull dell'immagine da DockerHub repository con il commando: docker pull lualto/django-api
+2. Fare la build del container ed eseguirla (Vengono pre caricate le fixture in modo automatico)
+3. Accedere all'API all'indirizzo: http://localhost:8000/api/
+4. Accedi al client utilizzando test-api-full.html
 
 ## 🌐 Deployment
 
-Il progetto è deployato su Railway <!-- Sostituisci con il tuo link -->
+Il progetto è deployato su [Railway](https://ppmticketreservation-production.up.railway.app/)
+Il databse è un database Postgres in esecuzione su Railway
+Per accedere come client al API utilizzare test-api-full.html modificando le variabili:
 
-- **Credenziali demo:** 
+  - API_BASE_URL = 'https://ppmticketreservation-production.up.railway.app/api/auth/'
+    
+  - EVENTS_API_URL = 'https://ppmticketreservation-production.up.railway.app/api/'
 
+- **Credenziali demo:**
+
+   - Admin: admin / testpassword
+  
    - Organizzatore: staff / testpassword
 
    - Utente: utente / testpassword
