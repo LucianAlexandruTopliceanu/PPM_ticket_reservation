@@ -59,11 +59,10 @@ Endpoint principali:
 1. Pull dell'immagine PostgreSQL
     ```
    docker pull postgres:13
-    
     ```
 3. Esegui il container PostgreSQL con le tue configurazioni
 4. 
-    ```
+    ```docker
    docker run -d \
   --name ticket_db \
   -e POSTGRES_USER=myuser \
@@ -76,7 +75,6 @@ Endpoint principali:
   --health-timeout=5s \
   --health-retries=5 \
   postgres:13
-  
 ```
 4. Pull della tua immagine web
 ```
