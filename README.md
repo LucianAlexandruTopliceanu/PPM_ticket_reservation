@@ -57,11 +57,13 @@ Endpoint principali:
 ## 🐳 Installazione locale server API Docker
 
 1. Pull dell'immagine PostgreSQL
-    '''
+    ```
    docker pull postgres:13
-    '''
+    
+    ```
 3. Esegui il container PostgreSQL con le tue configurazioni
-    '''
+4. 
+    ```
    docker run -d \
   --name ticket_db \
   -e POSTGRES_USER=myuser \
@@ -74,13 +76,14 @@ Endpoint principali:
   --health-timeout=5s \
   --health-retries=5 \
   postgres:13
-'''
+  
+```
 4. Pull della tua immagine web
-'''
+```
    docker pull lualto/django-ticket-web:1.0
- '''
+```
 5. Esegui il container web collegandolo al DB
-'''
+```
    docker run -d \
   --name ticket_web \
   -e DATABASE_URL="postgres://myuser:mypassword@ticket_db:5432/mydatabase" \
@@ -88,12 +91,12 @@ Endpoint principali:
   -p 8000:8000 \
   lualto/django-ticket-web:1.0
 
-'''
+```
 6. (Opzionale) Carica dati iniziali 
-'''
+```
 docker exec -it ticket_web python manage.py loaddata db.json
 
-''''
+```
 
 ## 🌐 Deployment
 
