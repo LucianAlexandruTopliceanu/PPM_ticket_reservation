@@ -56,10 +56,44 @@ Endpoint principali:
 
 ## 🐳 Installazione locale server API Docker
 
-1. Fare il pull dell'immagine da DockerHub repository con il commando: docker pull lualto/django-api
-2. Fare la build del container ed eseguirla (Vengono pre caricate le fixture in modo automatico)
-3. Accedere all'API all'indirizzo: http://localhost:8000/api/
-4. Accedi al client utilizzando test-api-full.html
+1. Pull dell'immagine PostgreSQL
+    '''
+   docker pull postgres:13
+    '''
+3. Esegui il container PostgreSQL con le tue configurazioni
+    '''
+   docker run -d \
+  --name ticket_db \
+  -e POSTGRES_USER=myuser \
+  -e POSTGRES_PASSWORD=mypassword \
+  -e POSTGRES_DB=mydatabase \
+  -v postgres_data:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  --health-cmd="pg_isready -U myuser -d mydatabase" \
+  --health-interval=5s \
+  --health-timeout=5s \
+  --health-retries=5 \
+  postgres:13
+'''
+4. Pull della tua immagine web
+'''
+   docker pull lualto/django-ticket-web:1.0
+ '''
+5. Esegui il container web collegandolo al DB
+'''
+   docker run -d \
+  --name ticket_web \
+  -e DATABASE_URL="postgres://myuser:mypassword@ticket_db:5432/mydatabase" \
+  --link ticket_db:db \
+  -p 8000:8000 \
+  lualto/django-ticket-web:1.0
+
+'''
+6. (Opzionale) Carica dati iniziali 
+'''
+docker exec -it ticket_web python manage.py loaddata db.json
+
+''''
 
 ## 🌐 Deployment
 
