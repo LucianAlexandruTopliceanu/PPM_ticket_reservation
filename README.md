@@ -52,7 +52,7 @@ Endpoint principali:
 6. Carica le fixtures : python manage.py loaddata db.json
 7. Avvia il server di sviluppo
 8. Accedi all'API all'indirizzo: http://localhost:8000/api/
-9. Accedi al client utilizzando test-api-full.html
+9. Accedi all'API utilizzando il client test-api-full.html
 
 ## 🐳 Installazione locale server API Docker
 
@@ -93,6 +93,8 @@ Endpoint principali:
 ```
 docker exec -it ticket_web python manage.py loaddata db.json
 ```
+7. Accedi all'API utilizzando il client test-api-full.html
+
 
 ## 🌐 Deployment
 
