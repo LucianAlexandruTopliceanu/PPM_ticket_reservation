@@ -101,11 +101,11 @@ docker exec -it ticket_web python manage.py loaddata db.json
 - Il progetto è deployato su [Railway](https://ppmticketreservation-production.up.railway.app/)
 - Il databse è un database Postgres in esecuzione su Railway
 - Per accedere come client al API utilizzare test-api-full.html modificando le variabili:
-
-  - API_BASE_URL = 'https://ppmticketreservation-production.up.railway.app/api/auth/'
+```js
+   API_BASE_URL = 'https://ppmticketreservation-production.up.railway.app/api/auth/'
     
-  - EVENTS_API_URL = 'https://ppmticketreservation-production.up.railway.app/api/'
-
+   EVENTS_API_URL = 'https://ppmticketreservation-production.up.railway.app/api/'
+```
 - **Credenziali demo:**
 
    - Admin: admin / testpassword
