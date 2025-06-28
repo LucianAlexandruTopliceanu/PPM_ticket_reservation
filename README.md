@@ -60,7 +60,7 @@ Endpoint principali:
 ```
    docker pull postgres:13
  ```
-3. Esegui il container PostgreSQL con le tue configurazioni
+3. Esegui il container PostgreSQL con le configurazioni
 ```
    docker run -d  --name ticket_db  -e POSTGRES_USER=myuser  -e POSTGRES_PASSWORD=mypassword   -e POSTGRES_DB=mydatabase  -v postgres_data:/var/lib/postgresql/data  -p 5432:5432  --health-cmd="pg_isready -U myuser -d mydatabase"  --health-interval=5s  --health-timeout=5s  --health-retries=5  postgres:13
 ```
